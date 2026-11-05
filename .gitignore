@@ -44,6 +44,9 @@ pnpm-debug.log*
 .pytest_cache/
 .coverage
 htmlcov/
+backend/uploads/
+frontend/test-results/
+*.tsbuildinfo
 
 # Temporary
 tmp/
