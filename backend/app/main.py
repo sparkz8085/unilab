@@ -93,13 +93,20 @@ async def root():
 async def root_health(response: Response):
     from app.core.database import db_manager
 
-    healthy = db_manager.is_connected
-    response.status_code = status.HTTP_200_OK if healthy else status.HTTP_503_SERVICE_UNAVAILABLE
+    database_connected = db_manager.is_connected
+    production_database_ready = (
+        settings.ENVIRONMENT.lower() != "production" or database_connected
+    )
+    response.status_code = (
+        status.HTTP_200_OK
+        if production_database_ready
+        else status.HTTP_503_SERVICE_UNAVAILABLE
+    )
     return {
-        "status": "healthy" if healthy else "unhealthy",
+        "status": "healthy" if production_database_ready else "unhealthy",
         "app": settings.PROJECT_NAME,
         "environment": settings.ENVIRONMENT,
-        "database_connected": healthy,
+        "database_connected": database_connected,
     }
 
 
