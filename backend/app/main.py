@@ -1,6 +1,7 @@
 import logging
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request, status
+
+from fastapi import FastAPI, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from slowapi.errors import RateLimitExceeded
@@ -14,21 +15,19 @@ from app.utils.seed_data import seed_initial_data_if_empty
 
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
 logger = logging.getLogger("unilab")
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: Connect to MongoDB & seed initial mock/demo records
-    logger.info(f"Starting {settings.PROJECT_NAME} Backend Engine...")
+    logger.info("Starting %s Backend Engine...", settings.PROJECT_NAME)
     await connect_to_mongo()
-    if settings.ENVIRONMENT != "production":
+    if settings.ENVIRONMENT.lower() != "production":
         await seed_initial_data_if_empty()
     yield
-    # Shutdown: Cleanly close DB connection
-    logger.info(f"Shutting down {settings.PROJECT_NAME} Backend Engine...")
+    logger.info("Shutting down %s Backend Engine...", settings.PROJECT_NAME)
     await close_mongo_connection()
 
 
@@ -51,9 +50,8 @@ async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
         content={"detail": "Too many requests. Please try again later."},
     )
 
-# Configure CORS for Next.js frontend (Vercel & local development)
-origins = settings.CORS_ORIGINS if isinstance(settings.CORS_ORIGINS, list) else [settings.CORS_ORIGINS]
 
+origins = settings.CORS_ORIGINS if isinstance(settings.CORS_ORIGINS, list) else [settings.CORS_ORIGINS]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -65,14 +63,19 @@ app.add_middleware(
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
-    logger.error(f"Global unhandled error on {request.method} {request.url.path}: {exc}", exc_info=True)
+    logger.error(
+        "Unhandled error on %s %s: %s",
+        request.method,
+        request.url.path,
+        exc,
+        exc_info=True,
+    )
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={"detail": "An internal server error occurred. Please try again later."},
     )
 
 
-# Mount API routers
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
 
@@ -82,21 +85,25 @@ async def root():
         "message": f"Welcome to {settings.PROJECT_NAME} Laboratory Management API",
         "docs": "/docs",
         "version": "1.0.0",
-        "status": "online"
+        "status": "online",
     }
 
 
 @app.get("/health")
-async def root_health():
+async def root_health(response: Response):
     from app.core.database import db_manager
+
+    healthy = db_manager.is_connected
+    response.status_code = status.HTTP_200_OK if healthy else status.HTTP_503_SERVICE_UNAVAILABLE
     return {
-        "status": "healthy",
+        "status": "healthy" if healthy else "unhealthy",
         "app": settings.PROJECT_NAME,
         "environment": settings.ENVIRONMENT,
-        "database_connected": db_manager.is_connected
+        "database_connected": healthy,
     }
 
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run("app.main:app", host="0.0.0.0", port=settings.PORT, reload=True)
