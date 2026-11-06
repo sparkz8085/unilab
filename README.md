@@ -12,8 +12,8 @@ UniLab is structured as a scalable, modern monorepo:
 * **Backend**: FastAPI (Python 3.11+), Pydantic v2, Motor (Async MongoDB driver), PyJWT / python-jose, and Bcrypt.
 * **Database**: MongoDB (Atlas-ready) with clean repository abstractions.
 * **Deployment**:
-  * **Frontend**: Vercel
-  * **Backend**: Render (FastAPI ASGI Web Service)
+  * **Frontend**: Render (Next.js Web Service)
+  * **Backend**: Render (FastAPI Web Service)
   * **Database**: MongoDB Atlas Cluster
 
 ```text
@@ -92,7 +92,7 @@ These credentials are for local development only. Production startup does not se
 
 ### Step 1: Clone and Install Dependencies
 ```bash
-git clone https://github.com/your-org/unilab.git
+git clone https://github.com/sparkz8085/unilab.git
 cd unilab
 
 # Install frontend dependencies
@@ -156,28 +156,41 @@ pnpm --filter frontend build
 
 ---
 
-## 6. Production Deployment
+## 6. Production Deployment (Render)
 
-### Frontend on Vercel
-1. Import the repository on [Vercel](https://vercel.com).
-2. Set **Root Directory** to `frontend`.
-3. Add Environment Variable:
-   * `NEXT_PUBLIC_API_URL`: `https://your-unilab-backend.onrender.com`
-4. Deploy!
+UniLab uses two Render Web Services and one MongoDB Atlas database.
 
-### Backend on Render
-1. Create a **Web Service** on [Render](https://render.com) from the repository (or use `render.yaml`).
-2. Set **Root Directory** to `backend`.
+### Backend (FastAPI)
+1. Create a Render Blueprint from this repository, or create a Python Web Service manually.
+2. For a manual service, set **Root Directory** to `backend`.
 3. Set **Build Command** to `pip install -r requirements.txt`.
 4. Set **Start Command** to `uvicorn app.main:app --host 0.0.0.0 --port $PORT`.
-5. Add Environment Variables:
-   * `MONGODB_URI`: `mongodb+srv://<user>:<password>@cluster.mongodb.net/unilab_db?retryWrites=true&w=majority`
-   * `JWT_SECRET`: `<generated-strong-secret>`
-   * `CORS_ORIGINS`: `https://your-unilab-frontend.vercel.app`
-   * `ENVIRONMENT`: `production`
+5. Set these environment variables:
+   * `ENVIRONMENT=production`
+   * `MONGODB_URI`: your rotated MongoDB Atlas connection string
+   * `MONGODB_DB_NAME=unilab_db`
+   * `JWT_SECRET`: a unique random secret (at least 32 characters)
+   * `CORS_ORIGINS`: the exact public frontend origin, for example `https://your-frontend.onrender.com`
+
+The backend health check is `/health`. It returns HTTP 503 until MongoDB is connected. Production startup intentionally fails if MongoDB is unavailable; this prevents authentication from silently using temporary in-memory data.
+
+### Frontend (Next.js)
+1. Create a Node.js Web Service from the same repository (or use the included `render.yaml` Blueprint).
+2. Keep the repository root as the service root directory.
+3. Build with `corepack enable && corepack prepare pnpm@9.15.4 --activate && pnpm install --frozen-lockfile && pnpm --filter frontend build`.
+4. Start with `pnpm --filter frontend start`.
+5. Set `NEXT_PUBLIC_API_URL` to the backend's public base URL, for example `https://your-backend.onrender.com`. Do not append `/api/v1`; the frontend adds that path itself.
+
+Because `NEXT_PUBLIC_API_URL` is embedded during the Next.js build, redeploy the frontend after changing it. Keep the frontend origin in the backend's `CORS_ORIGINS` value.
+
+### Security and account setup
+* Never commit `.env` files, database connection strings, or JWT secrets.
+* Rotate any MongoDB password that has been exposed and update the Render environment variable.
+* Production does not create demo accounts. Register a student account through the app; privileged accounts must be provisioned through a trusted administrative process.
+* Demo credentials listed above are for local development only.
 
 ---
-
+ 
 ## 7. Future Architecture & Extensions
 
 UniLab is architected with clear service boundaries to support future capabilities without redesign:
