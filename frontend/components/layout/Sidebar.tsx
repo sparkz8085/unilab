@@ -21,6 +21,7 @@ import {
   Settings,
   FolderKanban,
   ClipboardList,
+  Code2,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -34,6 +35,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
   const studentLinks = [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/student', label: 'Student Workspace', icon: Code2 },
     { href: '/courses', label: 'My Courses', icon: BookOpen },
     { href: '/practicals', label: 'Practical Labs', icon: FlaskConical },
     { href: '/history', label: 'Submission History', icon: History },
