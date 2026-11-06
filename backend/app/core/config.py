@@ -1,7 +1,6 @@
 from typing import List, Union
 
-from pydantic import field_validator
-from pydantic_core.core_schema import ValidationInfo
+from pydantic import ValidationInfo, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
