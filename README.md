@@ -88,7 +88,7 @@ These credentials are for local development only. Production startup does not se
 * Node.js 18+ (Node 20+ recommended)
 * `pnpm` (`npm install -g pnpm`)
 * Python 3.10+
-* MongoDB (Optional: The backend includes built-in persistent mock fallbacks if local MongoDB is offline)
+* MongoDB (Optional for local development; the backend uses temporary in-memory fallback data when MongoDB is offline)
 
 ### Step 1: Clone and Install Dependencies
 ```bash
