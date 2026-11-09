@@ -1,7 +1,6 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import { User } from '@/types';
 
@@ -26,15 +25,22 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+function getDashboardPath(role: User['role']): string {
+  if (role === 'admin' || role === 'super_admin') return '/admin';
+  if (role === 'teacher') return '/teacher/dashboard';
+  return '/dashboard';
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
 
   const refreshUser = async () => {
     const storedToken = window.localStorage.getItem('unilab_access_token');
     if (!storedToken) {
+      setUser(null);
+      setToken(null);
       setLoading(false);
       return;
     }
@@ -54,7 +60,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    refreshUser();
+    void refreshUser();
   }, []);
 
   const login = async (email: string, password: string) => {
@@ -63,9 +69,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const res = await api.auth.login(email, password);
       setToken(res.access_token);
       setUser(res.user);
-      if (res.user.role === 'admin') router.push('/admin');
-      else if (res.user.role === 'teacher') router.push('/teacher/dashboard');
-      else router.push('/dashboard');
+
+      // A full navigation makes the destination re-hydrate from the persisted token.
+      // This avoids stale client-side auth state during protected-route transitions.
+      window.location.replace(getDashboardPath(res.user.role));
     } finally {
       setLoading(false);
     }
@@ -83,9 +90,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const res = await api.auth.register(payload);
       setToken(res.access_token);
       setUser(res.user);
-      if (res.user.role === 'admin') router.push('/admin');
-      else if (res.user.role === 'teacher') router.push('/teacher/dashboard');
-      else router.push('/dashboard');
+      window.location.replace(getDashboardPath(res.user.role));
     } finally {
       setLoading(false);
     }
@@ -96,7 +101,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setToken(null);
     window.localStorage.removeItem('unilab_access_token');
     window.localStorage.removeItem('unilab_active_user');
-    router.push('/login');
+    window.location.replace('/login');
   };
 
   const isStudent = user?.role === 'student';
