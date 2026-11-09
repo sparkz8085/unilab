@@ -2,8 +2,6 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import {
@@ -22,64 +20,12 @@ import {
 } from 'lucide-react';
 
 export default function LandingPage() {
-  const router = useRouter();
-  const { user, login } = useAuth();
-
-  const handleQuickLogin = async (email: string) => {
-    try {
-      await login(email, 'password123');
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-[#070b14] text-slate-100 selection:bg-indigo-500/30">
       {/* Top Navbar */}
       <header className="sticky top-0 z-50 border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-500 flex items-center justify-center text-white shadow-lg shadow-indigo-600/30">
-              <FlaskConical className="w-5 h-5" />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-bold text-base tracking-tight text-white">UniLab</span>
-              <span className="text-[10px] text-indigo-400 font-mono -mt-1 tracking-wider uppercase">
-                Laboratory Management OS
-              </span>
-            </div>
-          </div>
 
-          <div className="flex items-center gap-3">
-            {user ? (
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={() => router.push('/dashboard')}
-                rightIcon={<ArrowRight className="w-4 h-4" />}
-              >
-                Go to Dashboard
-              </Button>
-            ) : (
-              <>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => router.push('/login')}
-                  className="text-slate-300 hover:text-white"
-                >
-                  Sign In
-                </Button>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  onClick={() => router.push('/register')}
-                >
-                  Get Started
-                </Button>
-              </>
-            )}
-          </div>
         </div>
       </header>
 
@@ -114,8 +60,8 @@ export default function LandingPage() {
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto text-left">
               {/* Student */}
-              <div
-                onClick={() => handleQuickLogin('alex@unilab.edu')}
+              <Link
+                href="/login?role=student"
                 className="p-5 rounded-2xl border border-slate-800 bg-slate-900/60 hover:bg-slate-900/90 hover:border-emerald-500/50 transition-all cursor-pointer group shadow-lg"
               >
                 <div className="flex items-center justify-between mb-3">
@@ -134,11 +80,11 @@ export default function LandingPage() {
                   <span>Enter Student Portal</span>
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                 </div>
-              </div>
+              </Link>
 
               {/* Teacher */}
-              <div
-                onClick={() => handleQuickLogin('teacher@unilab.edu')}
+              <Link
+                href="/login?role=faculty"
                 className="p-5 rounded-2xl border border-slate-800 bg-slate-900/60 hover:bg-slate-900/90 hover:border-indigo-500/50 transition-all cursor-pointer group shadow-lg"
               >
                 <div className="flex items-center justify-between mb-3">
@@ -157,11 +103,11 @@ export default function LandingPage() {
                   <span>Enter Faculty Studio</span>
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                 </div>
-              </div>
+              </Link>
 
               {/* Admin */}
-              <div
-                onClick={() => handleQuickLogin('admin@unilab.edu')}
+              <Link
+                href="/login?role=admin"
                 className="p-5 rounded-2xl border border-slate-800 bg-slate-900/60 hover:bg-slate-900/90 hover:border-purple-500/50 transition-all cursor-pointer group shadow-lg"
               >
                 <div className="flex items-center justify-between mb-3">
@@ -180,7 +126,7 @@ export default function LandingPage() {
                   <span>Enter Admin Console</span>
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                 </div>
-              </div>
+              </Link>
             </div>
           </div>
         </div>
