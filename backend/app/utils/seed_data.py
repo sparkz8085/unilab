@@ -31,7 +31,7 @@ async def seed_initial_data_if_empty():
 
     # 2. Create Users
     admin_user = await user_repo.create({
-        "email": "admin@unilab.edu",
+        "email": "arthur@admin.unilab.edu",
         "password_hash": hashed_pw,
         "full_name": "Prof. Arthur Vance (Dean/Admin)",
         "role": UserRole.ADMIN,
@@ -45,7 +45,7 @@ async def seed_initial_data_if_empty():
     })
 
     teacher_user = await user_repo.create({
-        "email": "teacher@unilab.edu",
+        "email": "eleanor@faculty.unilab.edu",
         "password_hash": hashed_pw,
         "full_name": "Dr. Eleanor Sterling",
         "role": UserRole.TEACHER,
@@ -59,7 +59,7 @@ async def seed_initial_data_if_empty():
     })
 
     student_alex = await user_repo.create({
-        "email": "alex@unilab.edu",
+        "email": "alex.042@stud.unilab.edu",
         "password_hash": hashed_pw,
         "full_name": "Alex Chen",
         "role": UserRole.STUDENT,
@@ -73,7 +73,7 @@ async def seed_initial_data_if_empty():
     })
 
     student_maya = await user_repo.create({
-        "email": "maya@unilab.edu",
+        "email": "maya.089@stud.unilab.edu",
         "password_hash": hashed_pw,
         "full_name": "Maya Lin",
         "role": UserRole.STUDENT,
