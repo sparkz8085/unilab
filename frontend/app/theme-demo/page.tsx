@@ -3,11 +3,13 @@
 import React, { useState } from 'react';
 import ThemeToggle from '@/components/theme-toggle/ThemeToggle';
 
+type ThemePreference = 'light' | 'dark' | 'system';
+
 export default function ThemeDemoPage() {
-  const [preference, setPreference] = useState('system');
+  const [preference, setPreference] = useState<ThemePreference>('system');
   return (
     <main className="min-h-screen bg-slate-50 px-6 py-20 text-slate-900 transition-colors dark:bg-slate-950 dark:text-white">
-      <ThemeToggle position="top-right" idleTimeout={3000} idleOpacity={0.2} onThemeChange={(value) => setPreference(value)} />
+      <ThemeToggle position="top-right" idleTimeout={3000} idleOpacity={0.2} onThemeChange={(value: ThemePreference) => setPreference(value)} />
       <section className="mx-auto max-w-3xl space-y-6">
         <p className="text-xs font-bold uppercase tracking-[.25em] text-indigo-500">Component playground</p>
         <h1 className="text-4xl font-black tracking-tight">A calmer way to switch themes.</h1>
