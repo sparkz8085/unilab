@@ -11,7 +11,12 @@ from app.schemas.user import UserResponse
 
 class AuthService:
     async def register(self, req: UserRegisterRequest) -> TokenResponse:
-        existing = await user_repo.get_by_email(req.email)
+        email = req.email.lower().strip()
+        if not email.endswith('@stud.unilab.edu') or email.count('@') != 1:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Student registration requires a @stud.unilab.edu email address.')
+        if not req.student_id or '.' not in email.split('@', 1)[0]:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Use name.roll@stud.unilab.edu and provide your roll number.')
+        existing = await user_repo.get_by_email(email)
         if existing:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -21,7 +26,7 @@ class AuthService:
         password_hash = get_password_hash(req.password)
         now = datetime.now(timezone.utc)
         user_dict = {
-            "email": req.email.lower(),
+            "email": email,
             "password_hash": password_hash,
             "full_name": req.full_name,
             # Public registration must never be able to create privileged accounts.
@@ -58,6 +63,12 @@ class AuthService:
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password."
             )
+
+        email_domain = user["email"].lower().rsplit("@", 1)[-1]
+        expected_domains = {"student": "stud.unilab.edu", "teacher": "faculty.unilab.edu", "admin": "admin.unilab.edu", "super_admin": "admin.unilab.edu"}
+        expected_domain = expected_domains.get(str(user["role"]))
+        if email_domain != "unilab.edu" and expected_domain and email_domain != expected_domain:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Email domain does not match the account role.")
 
         if not user.get("is_active", True):
             raise HTTPException(
