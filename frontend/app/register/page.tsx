@@ -82,7 +82,7 @@ export default function RegisterPage() {
             label="Generated University Email"
             type="email"
             placeholder="Generated from your name and roll number"
-            value={email}
+            value={fullName.trim() && identifier.trim() ? `${fullName.trim().toLowerCase().replace(/[^a-z0-9]+/g, '.').replace(/^\\.+|\\.+$/g, '')}.${identifier.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-')}@stud.unilab.edu` : ''}
             disabled
             leftIcon={<Mail className="w-4 h-4" />}
             required
