@@ -23,7 +23,7 @@ export default function LoginPage() {
   }, []);
 
   const portalTitle = portalRole === 'student' ? 'Student Login Portal' : portalRole === 'faculty' ? 'Faculty Login Portal' : portalRole === 'admin' ? 'Admin Login Portal' : 'Sign in to your account';
-  const portalDescription = portalRole === 'student' ? 'Sign in to access your practicals, assignments, and submissions.' : portalRole === 'faculty' ? 'Sign in to manage practicals, review submissions, and grade work.' : portalRole === 'admin' ? 'Sign in to manage university operations and system settings.' : '{portalDescription}';
+  const portalDescription = portalRole === 'student' ? 'Sign in to access your practicals, assignments, and submissions.' : portalRole === 'faculty' ? 'Sign in to manage practicals, review submissions, and grade work.' : portalRole === 'admin' ? 'Sign in to manage university operations and system settings.' : 'Access your courses, laboratory assignments, and submissions.';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
