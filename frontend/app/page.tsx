@@ -66,12 +66,12 @@ export default function LandingPage() {
           {/* Persona Demo Login Cards */}
           <div className="pt-8">
             <p className="text-xs uppercase font-bold tracking-widest text-slate-500 mb-4">
-              Explore 1-Click Interactive Role Demos
+              Choose Your Portal
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto text-left">
               {/* Student */}
               <Link
-                href="/login?role=student"
+                href="/login/student"
                 className="p-5 rounded-2xl border border-slate-800 bg-slate-900/60 hover:bg-slate-900/90 hover:border-emerald-500/50 transition-all cursor-pointer group shadow-lg"
               >
                 <div className="flex items-center justify-between mb-3">
@@ -94,7 +94,7 @@ export default function LandingPage() {
 
               {/* Teacher */}
               <Link
-                href="/login?role=faculty"
+                href="/login/faculty"
                 className="p-5 rounded-2xl border border-slate-800 bg-slate-900/60 hover:bg-slate-900/90 hover:border-indigo-500/50 transition-all cursor-pointer group shadow-lg"
               >
                 <div className="flex items-center justify-between mb-3">
@@ -117,7 +117,7 @@ export default function LandingPage() {
 
               {/* Admin */}
               <Link
-                href="/login?role=admin"
+                href="/login/admin"
                 className="p-5 rounded-2xl border border-slate-800 bg-slate-900/60 hover:bg-slate-900/90 hover:border-purple-500/50 transition-all cursor-pointer group shadow-lg"
               >
                 <div className="flex items-center justify-between mb-3">
