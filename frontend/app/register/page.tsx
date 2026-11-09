@@ -21,15 +21,19 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password || !fullName) {
-      error('Fields required', 'Please complete all required fields.');
+    if (!password || !fullName || !identifier.trim()) {
+      error('Fields required', 'Please complete your name, roll number, and password.');
       return;
     }
 
     setIsSubmitting(true);
     try {
+      const localName = fullName.trim().toLowerCase().replace(/[^a-z0-9]+/g, '.').replace(/^\.+|\.+$/g, '');
+      const roll = identifier.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      const generatedEmail = `${localName}.${roll}@stud.unilab.edu`;
+      setEmail(generatedEmail);
       await register({
-        email,
+        email: generatedEmail,
         password,
         full_name: fullName,
         student_id: identifier || undefined,
@@ -75,11 +79,11 @@ export default function RegisterPage() {
           />
 
           <Input
-            label="University Email"
+            label="Generated University Email"
             type="email"
-            placeholder="e.g. maya@unilab.edu"
+            placeholder="Generated from your name and roll number"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            disabled
             leftIcon={<Mail className="w-4 h-4" />}
             required
           />
