@@ -8,22 +8,51 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { FlaskConical, Lock, Mail, ArrowRight } from 'lucide-react';
 
-export default function LoginPage() {
+export type PortalRole = 'student' | 'faculty' | 'admin';
+
+export default function LoginPage({ role }: { role?: PortalRole }) {
   const { login } = useAuth();
   const { error, success } = useToast();
 
-  const [portalRole, setPortalRole] = useState<'student' | 'faculty' | 'admin' | null>(null);
+  const [portalRole, setPortalRole] = useState<PortalRole | null>(role ?? null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const role = new URLSearchParams(window.location.search).get('role');
-    if (role === 'student' || role === 'faculty' || role === 'admin') setPortalRole(role);
-  }, []);
+    if (role) {
+      setPortalRole(role);
+      return;
+    }
+    const queryRole = new URLSearchParams(window.location.search).get('role');
+    if (queryRole === 'student' || queryRole === 'faculty' || queryRole === 'admin') {
+      setPortalRole(queryRole);
+    }
+  }, [role]);
 
-  const portalTitle = portalRole === 'student' ? 'Student Login Portal' : portalRole === 'faculty' ? 'Faculty Login Portal' : portalRole === 'admin' ? 'Admin Login Portal' : 'Sign in to your account';
-  const portalDescription = portalRole === 'student' ? 'Sign in to access your practicals, assignments, and submissions.' : portalRole === 'faculty' ? 'Sign in to manage practicals, review submissions, and grade work.' : portalRole === 'admin' ? 'Sign in to manage university operations and system settings.' : 'Access your courses, laboratory assignments, and submissions.';
+  const portalTitle = portalRole === 'student'
+    ? 'Student Login Portal'
+    : portalRole === 'faculty'
+      ? 'Faculty Login Portal'
+      : portalRole === 'admin'
+        ? 'Admin Login Portal'
+        : 'Sign in to your account';
+
+  const portalDescription = portalRole === 'student'
+    ? 'Access your courses, practicals, assignments, and submissions.'
+    : portalRole === 'faculty'
+      ? 'Manage practicals, review student submissions, and grade work.'
+      : portalRole === 'admin'
+        ? 'Manage university operations, users, and system settings.'
+        : 'Access your courses, laboratory assignments, and submissions.';
+
+  const emailPlaceholder = portalRole === 'student'
+    ? 'e.g. alex.042@stud.unilab.edu'
+    : portalRole === 'faculty'
+      ? 'e.g. eleanor@faculty.unilab.edu'
+      : portalRole === 'admin'
+        ? 'e.g. arthur@admin.unilab.edu'
+        : 'Enter your university email';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,7 +75,6 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center p-4 sm:p-6 text-slate-100">
       <div className="w-full max-w-md space-y-6">
-        {/* Header Logo */}
         <div className="text-center space-y-2">
           <Link href="/" className="inline-flex items-center gap-2.5 group">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-500 flex items-center justify-center text-white shadow-lg shadow-indigo-600/30">
@@ -55,12 +83,9 @@ export default function LoginPage() {
             <span className="font-bold text-xl tracking-tight text-white">UniLab</span>
           </Link>
           <h2 className="text-xl font-bold text-white tracking-tight">{portalTitle}</h2>
-          <p className="text-xs text-slate-400">
-            Access your courses, laboratory assignments, and submissions.
-          </p>
+          <p className="text-xs text-slate-400">{portalDescription}</p>
         </div>
 
-        {/* Login Form */}
         <form
           onSubmit={handleSubmit}
           className="p-6 rounded-2xl border border-slate-800 bg-slate-900/60 backdrop-blur-xl shadow-xl space-y-4"
@@ -68,7 +93,7 @@ export default function LoginPage() {
           <Input
             label="University Email"
             type="email"
-            placeholder="e.g. alex@unilab.edu"
+            placeholder={emailPlaceholder}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             leftIcon={<Mail className="w-4 h-4" />}
@@ -78,7 +103,7 @@ export default function LoginPage() {
           <Input
             label="Password"
             type="password"
-            placeholder="••••••••"
+            placeholder="Enter your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             leftIcon={<Lock className="w-4 h-4" />}
@@ -96,11 +121,21 @@ export default function LoginPage() {
           </Button>
         </form>
 
-        <p className="text-center text-xs text-slate-400">
-          Don&apos;t have an account?{' '}
-          <Link href="/register" className="text-indigo-400 hover:text-indigo-300 font-semibold">
-            Create an account
-          </Link>
+        {portalRole === 'student' ? (
+          <p className="text-center text-xs text-slate-400">
+            Don&apos;t have a student account?{' '}
+            <Link href="/register" className="text-indigo-400 hover:text-indigo-300 font-semibold">
+              Create an account
+            </Link>
+          </p>
+        ) : (
+          <p className="text-center text-xs text-slate-400">
+            Need access? Contact your university administrator.
+          </p>
+        )}
+
+        <p className="text-center text-xs">
+          <Link href="/" className="text-slate-500 hover:text-slate-300">← Back to UniLab home</Link>
         </p>
       </div>
     </div>
