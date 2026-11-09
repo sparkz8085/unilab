@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
@@ -12,9 +12,18 @@ export default function LoginPage() {
   const { login } = useAuth();
   const { error, success } = useToast();
 
+  const [portalRole, setPortalRole] = useState<'student' | 'faculty' | 'admin' | null>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    const role = new URLSearchParams(window.location.search).get('role');
+    if (role === 'student' || role === 'faculty' || role === 'admin') setPortalRole(role);
+  }, []);
+
+  const portalTitle = portalRole === 'student' ? 'Student Login Portal' : portalRole === 'faculty' ? 'Faculty Login Portal' : portalRole === 'admin' ? 'Admin Login Portal' : 'Sign in to your account';
+  const portalDescription = portalRole === 'student' ? 'Sign in to access your practicals, assignments, and submissions.' : portalRole === 'faculty' ? 'Sign in to manage practicals, review submissions, and grade work.' : portalRole === 'admin' ? 'Sign in to manage university operations and system settings.' : '{portalDescription}';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,7 +54,7 @@ export default function LoginPage() {
             </div>
             <span className="font-bold text-xl tracking-tight text-white">UniLab</span>
           </Link>
-          <h2 className="text-xl font-bold text-white tracking-tight">Sign in to your account</h2>
+          <h2 className="text-xl font-bold text-white tracking-tight">{portalTitle}</h2>
           <p className="text-xs text-slate-400">
             Access your courses, laboratory assignments, and submissions.
           </p>
